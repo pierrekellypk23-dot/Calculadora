@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Juros para Negociação</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #0056b3;
+            margin-bottom: 20px;
+        }
+        .nf-input-group, .controls {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+        }
+        /* Ajuste para cabeçalhos da lista de NF */
+        .nf-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            padding-right: 70px; 
+        }
+        .nf-header div {
+            flex: 1;
+            min-width: 0;
+            text-align: left;
+        }
+        .nf-header .nf-h-num { flex: 2.1; }
+        .nf-header .nf-h-value { flex: 1; }
+        .nf-header .nf-h-venc { flex: 1.67; } 
+        
+        /* Estilos dos itens da NF */
+        .nf-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #eee;
+        }
+        .nf-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .nf-item input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .nf-item button {
+            padding: 8px 12px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 70px; 
+            flex-shrink: 0;
+        }
+        .nf-item button:hover {
+            background-color: #c82333;
+        }
+        
+        /* Controles e Resultados */
+        .controls label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .controls select,
+        .controls input[type="date"],
+        .controls input[type="number"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        #addNfBtn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        #addNfBtn:hover {
+            background-color: #218838;
+        }
+        button#calculateBtn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+        }
+        button#calculateBtn:hover {
+            background-color: #0056b3;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 6px;
+        }
+        .results p {
+            font-size: 1.1em;
+            margin: 5px 0;
+        }
+        .results h3 {
+            color: #0056b3;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-top: 0;
+        }
+        #paymentScheduleText {
+            white-space: pre-wrap;
+            background-color: #fff;
+            padding: 10px;
+            border: 1px dashed #007bff;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: Consolas, monospace;
+            font-size: 0.9em;
+        }
+        .input-inline {
+            display: flex;
+            gap: 10px;
+        }
+        .input-inline > div {
+            flex: 1;
+        }
+        #clearBtn {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        #clearBtn:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Calculadora de Juros para Negociação</h1>
+
+        <button type="button" id="clearBtn" onclick="clearAll()">Limpar Tudo e Iniciar Novo Cálculo</button>
+
+        <div class="nf-input-group">
+            <h2>Notas Fiscais</h2>
+            
+            <div class="nf-header">
+                <div class="nf-h-num">Número da NF</div>
+                <div class="nf-h-venc">Vencimento</div>
+                <div class="nf-h-value">Valor Original</div>
+                <div></div> 
+            </div>
+
+            <div id="nfList">
+            </div>
+            <button type="button" id="addNfBtn">Adicionar NF</button>
+        </div>
+
+        <div class="controls">
+            <h2>Configurações do Pagamento</h2>
+            <div class="input-inline">
+                <div>
+                    <label for="interestRate">Taxa de Juros</label>
+                    <select id="interestRate">
+                        <option value="0.03">CLIENTE BOM </option>
+                        <option value="0.10" selected>CLIENTE MEDIO </option>
+                        <option value="0.13">CLIENTE RUIM </option>
+                    </select>
+                </div>
+                <div>
+                    <label for="installmentType">Frequência</label>
+                    <select id="installmentType" onchange="toggleInstallmentsInput()">
+                        <option value="cash">À Vista (1 Parcela)</option>
+                        <option value="weekly">Semanal</option>
+                        <option value="biweekly" selected>Quinzenal</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- WRAPPER do número de parcelas para esconder totalmente quando for modo 'valorParcela' -->
+            <div id="divNumInstallments">
+                <label for="numInstallments">Número de Parcelas</label>
+                <input type="number" id="numInstallments" min="1" value="4">
+            </div>
+
+            <label for="firstPaymentDate">Data do Primeiro Pagamento</label>
+            <input type="date" id="firstPaymentDate">
+
+            <!-- NOVO: modo de cálculo por valor da parcela (colocado aqui para manter ordem visual) -->
+            <div class="input-inline" style="margin-top:10px;">
+                <div>
+                    <label for="calcMode">Modo de Cálculo</label>
+                    <select id="calcMode" onchange="toggleCalcMode()">
+                        <option value="parcelas" selected>Por número de parcelas</option>
+                        <option value="valorParcela">Por valor da parcela</option>
+                    </select>
+                </div>
+                <div id="divValorParcela" style="display:none;">
+                    <label for="desiredInstallmentValue">Valor desejado por parcela (R$)</label>
+                    <input type="number" id="desiredInstallmentValue" min="0.01" step="0.01" placeholder="Ex: 200.00">
+                </div>
+            </div>
+        </div>
+
+        <button type="button" id="calculateBtn">Calcular e Gerar Texto</button>
+
+        <div class="results" id="resultsSection" style="display:none;">
+            <h3>Resumo da Negociação</h3>
+            <p><strong>Valor Total Original:</strong> <span id="totalOriginal"></span></p>
+            <p hidden><strong>Data Média de Vencimento (DMV):</strong> <span id="medianDueDate"></span></p>
+            
+            <div id="simpleInterestResults">
+                <p hidden><strong>Dias de Atraso (DMV até 1º Pgto):</strong> <span id="daysOfDelay"></span> dias</p>
+                <p hidden><strong>Juros Simples de Atraso:</strong> <span id="simpleInterestValue"></span></p>
+                <p hidden><strong>Valor Financiado (Original + J. Simples):</strong> <span id="totalFinanced"></span></p>
+            </div>
+            <p hidden><strong>Taxa Juros Composta por Período:</strong> <span id="compoundRatePerPeriod"></span></p>
+            
+            <p><strong>Valor da Parcela:</strong> <span id="installmentValue"></span></p>
+            <p id="calculatedNumDisplay" style="display:none;"><strong>Número de Parcelas:</strong> <span id="calculatedNum"></span></p>
+            <p><strong>Total Final com Juros:</strong> <span id="totalWithCompoundInterest"></span></p>
+            
+            <hr>
+            
+            <h3>Texto para Negociação </h3>
+            <div id="paymentScheduleText"></div>
+            <button type="button" onclick="copyScheduleText()">Copiar Texto</button>
+        </div>
+
+    </div>
+
+    <script>
+        let nfCounter = 0; 
+
+        // --- Funções Auxiliares ---
+
+        const formatCurrency = (value) => {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        };
+
+        const formatPercent = (rate) => {
+            return new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 4, maximumFractionDigits: 4 }).format(rate);
+        };
+
+        const formatDateBRL = (date) => {
+            // Garante que a data é tratada no fuso UTC para evitar problemas de dia
+            return new Date(date).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+        };
+
+        const diffInDays = (date1, date2) => {
+            const oneDay = 24 * 60 * 60 * 1000;
+            // Garante que as datas são tratadas como T00:00:00 UTC para comparação de dias
+            const d1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
+            const d2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
+            return Math.floor((d1 - d2) / oneDay); 
+        };
+
+        function calculateMedianDueDate(nfDetails, totalOriginal) {
+            if (nfDetails.length === 0 || totalOriginal === 0) return null;
+
+            // 1. Encontrar a data de vencimento mais antiga (A data base, ou Dia 0)
+            const oldestDate = nfDetails.reduce((minDate, nf) => {
+                const currentDueDate = new Date(nf.dueDate + 'T00:00:00');
+                
+                if (!minDate || currentDueDate < minDate) {
+                    return currentDueDate;
+                }
+                return minDate;
+            }, null);
+
+            if (!oldestDate) return null;
+
+            let sumValueTimesDays = 0;
+
+            // 2. Calcular o somatório de (Valor * Dias_a_partir_da_data_base)
+            nfDetails.forEach(nf => {
+                const dueDate = new Date(nf.dueDate + 'T00:00:00');
+                const daysFromBase = diffInDays(dueDate, oldestDate);
+                sumValueTimesDays += nf.value * daysFromBase;
+            });
+
+            // 3. Calcular a média ponderada dos dias
+            const medianDaysFromBase = sumValueTimesDays / totalOriginal;
+            
+            // 4. Calcular a DMV final
+            const medianDueDate = new Date(oldestDate);
+            medianDueDate.setDate(oldestDate.getDate() + Math.round(medianDaysFromBase));
+
+            return medianDueDate;
+        }
+        
+        // Função para mostrar/esconder o input de parcelas e os resultados de juros simples
+        window.toggleInstallmentsInput = () => {
+            const type = document.getElementById('installmentType').value;
+            const numInput = document.getElementById('numInstallments');
+            const label = document.querySelector('label[for="numInstallments"]');
+            const simpleResults = document.getElementById('simpleInterestResults');
+
+            if (type === 'cash') {
+                numInput.style.display = 'none';
+                label.style.display = 'none';
+                numInput.value = 1; 
+                simpleResults.style.display = 'block'; // Mostra juros simples
+            } else {
+                numInput.style.display = 'block';
+                label.style.display = 'block';
+                if (numInput.value === '1' || numInput.value === '') {
+                    numInput.value = '4'; 
+                }
+                simpleResults.style.display = 'none'; // Esconde juros simples
+            }
+        };
+
+        // --- NOVA: alternar modo de cálculo (por parcelas ou por valor da parcela) ---
+        window.toggleCalcMode = () => {
+            const mode = document.getElementById('calcMode').value;
+            const divNum = document.getElementById('divNumInstallments');
+            const valorDiv = document.getElementById('divValorParcela');
+
+            if (mode === 'valorParcela') {
+                // Esconde totalmente o bloco número de parcelas
+                divNum.style.display = 'none';
+                valorDiv.style.display = 'block';
+            } else {
+                divNum.style.display = 'block';
+                valorDiv.style.display = 'none';
+            }
+        };
+        // --- FIM toggleCalcMode ---
+
+        // --- Funções de Manipulação do DOM ---
+
+        function addNfItem(num = '', value = 0.00, dueDate = '') {
+            nfCounter++;
+            const nfList = document.getElementById('nfList');
+            const newItem = document.createElement('div');
+            newItem.className = 'nf-item';
+            newItem.setAttribute('data-id', nfCounter);
+            newItem.innerHTML = `
+                <input type="text" placeholder="Número da NF" class="nf-num" value="${num}">
+                <input type="date" placeholder="Vencimento Original" class="nf-due-date" value="${dueDate}">
+                <input type="number" placeholder="Valor Original (R$)" class="nf-value" step="0.01" min="0" value="${value.toFixed(2)}">
+                <button type="button" onclick="removeNf(${nfCounter})">Remover</button>
+            `;
+            nfList.appendChild(newItem);
+        }
+
+        document.getElementById('addNfBtn').addEventListener('click', () => {
+             const today = new Date();
+             const defaultDueDate = new Date(today);
+             defaultDueDate.setDate(today.getDate() - 5); // 5 dias atrás
+             addNfItem(`NF${String(nfCounter + 1).padStart(3, '0')}`, 0.00, defaultDueDate.toISOString().split('T')[0]);
+        });
+
+        window.removeNf = (id) => {
+            const item = document.querySelector(`.nf-item[data-id="${id}"]`);
+            if (item) {
+                item.remove();
+            }
+        };
+
+        window.clearAll = () => {
+            document.getElementById('nfList').innerHTML = '';
+            nfCounter = 0;
+
+            document.getElementById('interestRate').value = '0.10';
+            document.getElementById('installmentType').value = 'biweekly';
+            document.getElementById('numInstallments').value = '4';
+            // reset modo cálculo
+            document.getElementById('calcMode').value = 'parcelas';
+            document.getElementById('desiredInstallmentValue').value = '';
+            document.getElementById('divNumInstallments').style.display = 'block';
+            document.getElementById('divValorParcela').style.display = 'none';
+            
+            const defaultDueDate = setDefaultDates();
+            toggleInstallmentsInput(); 
+            
+            document.getElementById('resultsSection').style.display = 'none';
+            // Limpa todos os resultados
+            document.querySelectorAll('.results span').forEach(span => span.textContent = '');
+            document.getElementById('paymentScheduleText').textContent = '';
+            
+            addNfItem('NF001', 1000.00, defaultDueDate);
+            
+            alert('Calculadora limpa! Você pode iniciar uma nova negociação.');
+        };
+        // FIM DA FUNÇÃO clearAll
+
+        // --- Função Principal de Cálculo ---
+
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            const nfItems = document.querySelectorAll('.nf-item');
+            let totalOriginal = 0;
+            const nfDetails = [];
+
+            // 1. Coletar dados das NFs
+            nfItems.forEach(item => {
+                const num = item.querySelector('.nf-num').value.trim();
+                const dueDate = item.querySelector('.nf-due-date').value;
+                const valueInput = item.querySelector('.nf-value').value;
+                const value = parseFloat(valueInput);
+
+                if (num && dueDate && !isNaN(value) && value > 0) {
+                    totalOriginal += value;
+                    nfDetails.push({ num, dueDate, value });
+                }
+            });
+
+            if (nfDetails.length === 0) {
+                alert('Por favor, adicione pelo menos uma Nota Fiscal com um valor válido.');
+                return;
+            }
+
+            // 2. Coletar configurações de pagamento
+            const monthlyRate = parseFloat(document.getElementById('interestRate').value);
+            const type = document.getElementById('installmentType').value;
+            let numInstallments = parseInt(document.getElementById('numInstallments').value);
+            const firstPaymentDateStr = document.getElementById('firstPaymentDate').value;
+            const dailyRate = monthlyRate / 30;
+
+            // Novos campos do modo de cálculo
+            const calcMode = document.getElementById('calcMode').value;
+            const desiredInstallmentValue = parseFloat(document.getElementById('desiredInstallmentValue').value || 0);
+
+            if (!firstPaymentDateStr) {
+                alert('Por favor, defina a data do primeiro pagamento.');
+                return;
+            }
+
+            if (type !== 'cash' && (isNaN(numInstallments) || numInstallments <= 0) && calcMode !== 'valorParcela') {
+                alert('O número de parcelas deve ser um valor positivo.');
+                return;
+            }
+
+            const firstPaymentDate = new Date(firstPaymentDateStr + 'T00:00:00');
+
+            // 3. Calcular Data Média de Vencimento (DMV)
+            const medianDueDate = calculateMedianDueDate(nfDetails, totalOriginal);
+            if (!medianDueDate) return; 
+
+            // 4. JUROS SIMPLES: APLICAR SOMENTE PARA "cash" (à vista)
+            let daysOfDelay = 0;
+            let simpleInterestValue = 0;
+            let totalFinanced = totalOriginal; // Padrão: Valor Financiado é o Original
+
+            if (type === 'cash') {
+                daysOfDelay = diffInDays(firstPaymentDate, medianDueDate);
+                if (daysOfDelay < 0) daysOfDelay = 0;
+                simpleInterestValue = totalOriginal * dailyRate * daysOfDelay;
+                totalFinanced = totalOriginal + simpleInterestValue;
+            }
+
+            // 5. JUROS COMPOSTOS / PARCELAMENTO
+            let installmentValue = 0;
+            let totalWithCompoundInterest = totalFinanced;
+            let ratePerPeriod = 0;
+            let totalCompoundInterest = 0;
+
+            if (type === 'cash') {
+                // Modo À Vista: O valor da parcela é o total financiado (Total Original + J. Simples)
+                installmentValue = totalFinanced;
+                ratePerPeriod = dailyRate; // Apenas para exibição
+                totalCompoundInterest = 0; // Não há juros compostos
+                numInstallments = 1;
+                totalWithCompoundInterest = totalFinanced;
+            } else {
+                // Parcelamento (com juros compostos)
+
+                const interval = type === 'weekly' ? 7 : 15;
+                
+                // taxa por período convertida a partir da mensal
+                ratePerPeriod = Math.pow((1 + monthlyRate), (interval / 30)) - 1;
+
+                if (calcMode === 'valorParcela' && desiredInstallmentValue > 0) {
+                    // Aqui, NO MODO "valorParcela", usamos APENAS juros compostos (não aplicamos juros simples)
+                    // totalFinanced já está sem juros simples (já que type !== 'cash')
+                    const MAX_PARCELAS = 240;
+                    let best = { n: 1, pmt: totalFinanced }; // inicialização
+                    let bestDiff = Math.abs(Math.round(totalFinanced * 100) / 100 - desiredInstallmentValue);
+
+                    for (let n = 1; n <= MAX_PARCELAS; n++) {
+                        let pmt;
+                        if (ratePerPeriod <= 0) {
+                            pmt = totalFinanced / n;
+                        } else {
+                            const i_n = Math.pow((1 + ratePerPeriod), n);
+                            pmt = totalFinanced * (ratePerPeriod * i_n) / (i_n - 1);
+                        }
+
+                        // considerar o valor que será mostrado ao usuário (arredondado a centavos)
+                        const pmtRounded = Math.round(pmt * 100) / 100;
+                        const diff = Math.abs(pmtRounded - desiredInstallmentValue);
+
+                        // preferir menor diff; em empate, preferir maior n (mais parcelas) — ajustável
+                        if (diff < bestDiff || (diff === bestDiff && n > best.n)) {
+                            bestDiff = diff;
+                            best = { n, pmt };
+                        }
+                    }
+
+                    // Ajuste final: usar pmt arredondado a centavos (isso garante valor visível mais próximo)
+                    numInstallments = best.n;
+                    installmentValue = Math.round(best.pmt * 100) / 100;
+                    totalWithCompoundInterest = Math.round(installmentValue * numInstallments * 100) / 100;
+                    totalCompoundInterest = Math.round((totalWithCompoundInterest - totalFinanced) * 100) / 100;
+
+                } else {
+                    // Modo original: calcula pelo número de parcelas informado
+                    if (ratePerPeriod <= 0) {
+                         installmentValue = totalFinanced / numInstallments;
+                    } else {
+                         const i_n = Math.pow((1 + ratePerPeriod), numInstallments);
+                         // Fórmula PMT
+                         installmentValue = totalFinanced * (ratePerPeriod * i_n) / (i_n - 1);
+                    }
+
+                    totalWithCompoundInterest = installmentValue * numInstallments;
+                    // Juros Compostos são a diferença entre o total pago e o VP
+                    totalCompoundInterest = totalWithCompoundInterest - totalFinanced;
+                }
+            }
+            
+            // Arredondar valores
+            installmentValue = Math.round(installmentValue * 100) / 100;
+            totalWithCompoundInterest = Math.round(totalWithCompoundInterest * 100) / 100;
+            totalCompoundInterest = Math.round(totalCompoundInterest * 100) / 100;
+            
+            // 6. Gerar Cronograma de Pagamentos
+            const schedule = generateSchedule(firstPaymentDate, numInstallments, type, installmentValue);
+
+            // 7. Exibir Resultados
+            document.getElementById('medianDueDate').textContent = formatDateBRL(medianDueDate);
+            document.getElementById('daysOfDelay').textContent = daysOfDelay;
+            document.getElementById('totalOriginal').textContent = formatCurrency(totalOriginal);
+            document.getElementById('simpleInterestValue').textContent = formatCurrency(simpleInterestValue);
+            document.getElementById('totalFinanced').textContent = formatCurrency(totalFinanced);
+            document.getElementById('compoundRatePerPeriod').textContent = type === 'cash' ? 'N/A' : formatPercent(ratePerPeriod);
+            document.getElementById('installmentValue').textContent = formatCurrency(installmentValue);
+            document.getElementById('totalWithCompoundInterest').textContent = formatCurrency(totalWithCompoundInterest);
+
+            // mostrar número de parcelas calculado se modo valorParcela
+            if (document.getElementById('calcMode').value === 'valorParcela') {
+                document.getElementById('calculatedNumDisplay').style.display = 'block';
+                document.getElementById('calculatedNum').textContent = numInstallments;
+            } else {
+                document.getElementById('calculatedNumDisplay').style.display = 'none';
+                document.getElementById('calculatedNum').textContent = '';
+            }
+            
+            // 8. Gerar Texto para Negociação
+            const negotiationText = generateNegotiationText(nfDetails, totalOriginal, monthlyRate * 100, medianDueDate, daysOfDelay, simpleInterestValue, totalFinanced, installmentValue, numInstallments, schedule, type, totalCompoundInterest);
+            document.getElementById('paymentScheduleText').textContent = negotiationText;
+
+            document.getElementById('resultsSection').style.display = 'block';
+            toggleInstallmentsInput(); // Garante a visibilidade correta dos campos de juros simples
+        });
+
+        // --- Funções de Geração de Cronograma e Texto ---
+
+        function generateSchedule(startDate, numInstallments, frequency, value) {
+            const schedule = [];
+            
+            if (frequency === 'cash') {
+                schedule.push({
+                    number: 1,
+                    date: new Date(startDate),
+                    value: value
+                });
+                return schedule;
+            }
+
+            const interval = frequency === 'weekly' ? 7 : 15;
+            
+            for (let i = 1; i <= numInstallments; i++) {
+                
+                let paymentDate = new Date(startDate);
+                
+                // Adiciona (i-1) períodos de intervalo à data de início
+                paymentDate.setDate(paymentDate.getDate() + (i - 1) * interval); 
+
+                schedule.push({
+                    number: i,
+                    date: paymentDate,
+                    value: value
+                });
+            }
+            return schedule;
+        }
+
+        function generateNegotiationText(nfDetails, totalOriginal, ratePercent, medianDueDate, daysOfDelay, simpleInterestValue, totalFinanced, installmentValue, numInstallments, schedule, type, totalCompoundInterest) {
+            let text = `NEGOCIAÇÃO DE DÍVIDA\n\n`;
+
+            // Detalhes das NFs
+            text += `Notas Fiscais em Negociação:\n`;
+            nfDetails.forEach(nf => {
+                const vencimentoBRL = formatDateBRL(new Date(nf.dueDate + 'T00:00:00'));
+                text += `NF: ${nf.num} - Vencimento: ${vencimentoBRL}: ${formatCurrency(nf.value)}\n`;
+            });
+            text += `-------------------------------------------------\n`;
+            //text += `Valor Total Original: ${formatCurrency(totalOriginal)}\n`;
+            text += `\n`;
+            
+            const formattedRate = ratePercent.toFixed(2).replace('.', ','); 
+            
+            // Resumo da Negociação
+            if (type === 'cash') {
+                text += `\n`;
+                text += `CRONOGRAMA DE PAGAMENTOS:\n`;
+                text += `Pagamento Único - Vencimento: ${formatDateBRL(schedule[0].date)} - Valor: ${formatCurrency(installmentValue)}\n`;
+            } else {
+                const totalPaid = installmentValue * numInstallments;
+                
+                text += `RESUMO DO PARCELAMENTO (${numInstallments}x):\n`;
+                text += `Valor Original: ${formatCurrency(totalFinanced)} \n`;
+                //if (simpleInterestValue > 0) text += `Juros Simples (atualização até 1º pgto): ${formatCurrency(simpleInterestValue)}\n`;
+                text += `Valor Atualizado: ${formatCurrency(totalPaid)}\n`;
+                text += `\n`;
+                text += `CRONOGRAMA DE PAGAMENTOS:\n`;
+                
+                // Cronograma
+                schedule.forEach(p => {
+                    text += `Parcela ${String(p.number).padStart(2, '0')} - Vencimento: ${formatDateBRL(p.date)} - Valor: ${formatCurrency(p.value)}\n`;
+                });
+            }
+            
+            text += `\n`;
+            text += `Agradecemos a sua parceria e estamos à disposição para qualquer esclarecimento.`;
+
+            return text;
+        }
+
+        window.copyScheduleText = () => {
+            const textToCopy = document.getElementById('paymentScheduleText').textContent;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert('Texto copiado para a área de transferência!');
+            }).catch(err => {
+                console.error('Erro ao copiar: ', err);
+                alert('Erro ao copiar o texto. Tente novamente.');
+            });
+        };
+        
+        // --- Configuração Inicial ---
+        
+        function setDefaultDates() {
+             const today = new Date();
+             
+             // Define a data do primeiro pagamento (ex: 3 dias após hoje)
+             const firstPaymentDate = new Date(today);
+             firstPaymentDate.setDate(firstPaymentDate.getDate() + 3);
+             document.getElementById('firstPaymentDate').value = firstPaymentDate.toISOString().split('T')[0];
+
+             // Define a data de vencimento padrão para a NF inicial (ex: 5 dias atrás como atraso)
+             const defaultDueDate = new Date(today);
+             defaultDueDate.setDate(defaultDueDate.getDate() - 5); 
+             return defaultDueDate.toISOString().split('T')[0];
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+             const defaultDueDate = setDefaultDates();
+             
+             addNfItem('NF001', 1000.00, defaultDueDate);
+             
+             toggleInstallmentsInput();
+             toggleCalcMode(); // garante estado correto do modo cálculo
+        });
+    </script>
+</body>
+</html>
