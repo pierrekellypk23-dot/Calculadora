@@ -1,180 +1,268 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Juros para Negociação</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
-            color: #333;
-        }
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            background: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #0056b3;
-            margin-bottom: 20px;
-        }
-        .nf-input-group, .controls {
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-        }
-        /* Ajuste para cabeçalhos da lista de NF */
-        .nf-header {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 5px;
-            font-weight: bold;
-            padding-right: 70px; 
-        }
-        .nf-header div {
-            flex: 1;
-            min-width: 0;
-            text-align: left;
-        }
-        .nf-header .nf-h-num { flex: 2.1; }
-        .nf-header .nf-h-value { flex: 1; }
-        .nf-header .nf-h-venc { flex: 1.67; } 
-        
-        /* Estilos dos itens da NF */
-        .nf-item {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px dashed #eee;
-        }
-        .nf-item:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-        .nf-item input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .nf-item button {
-            padding: 8px 12px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 70px; 
-            flex-shrink: 0;
-        }
-        .nf-item button:hover {
-            background-color: #c82333;
-        }
-        
-        /* Controles e Resultados */
-        .controls label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .controls select,
-        .controls input[type="date"],
-        .controls input[type="number"] {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        #addNfBtn {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            transition: background-color 0.3s;
-        }
-        #addNfBtn:hover {
-            background-color: #218838;
-        }
-        button#calculateBtn {
-            background-color: #007bff;
-            color: white;
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Calculado de Juros para Negociação</title>
+        <style>
+            /*Variaveis css e dark mode*/
+            /*def tema claro*/
+            :root{
+                --color-bg-primary: #f4f4f9;        /* Fundo principal (body) */
+                --color-bg-secondary: #ffffff;      /* Fundo do container/cards */
+                --color-text-primary: #333333;      /* Cor principal do texto */
+                --color-accent: #007bff;            /* Azul primário (Calcular/Título) */
+                --color-accent-hover: #0056b3;
+                --color-success: #28a745;           /* Verde Adicionar */
+                --color-success-hover: #218838;
+                --color-error: #dc3545;             /* Vermelho Remover */
+                --color-error-hover: #c82333;
+                --color-utility: #6c757d;           /* Cinza Limpar */
+                --color-utility-hover: #5a6268;
+                --color-border: #dddddd;            /* Cor de borda e divisórias */
+                --color-shadow: rgba(0, 0, 0, 0.1); /* Sombra de caixas */
+                --border-radius: 12px;
+                --transition-speed: 0.3s;
+            }
+
+            /*Dark mode: detecta a preferencia do sistema*/
+            @media (prefers-color-scheme: dark) {
+                :root{
+                    --color-bg-primary: #121212;
+                    --color-bg-secondary: #1e1e1e;
+                    --color-text-primary: #e0e0e0;
+                    --color-accent: #8ab4f8; 
+                    --color-accent-hover: #a6c7ff;
+                    --color-success: #6aa84f;
+                    --color-success-hover: #8fc46a;
+                    --color-error: #cf6679;
+                    --color-error-hover: #ff7989;
+                    --color-utility: #9e9e9e;
+                    --color-utility-hover: #b0b0b0;
+                    --color-border: #3d3d3d;
+                    --color-shadow: rgba(255, 255, 255, 0.05);
+                } 
+            }
+
+            /*Estilos gerais e container*/
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: var(--color-bg-primary);
+                color: var(--color-text-primary);
+                transition: background-color var(--transition-speed), color var(--transition-speed);
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .container {
+                width: 100%;
+                width: 100%;
+                max-width: 900px; 
+                background: var(--color-bg-secondary);
+                padding: 30px;
+                border-radius: var(--border-radius);
+                box-shadow: 0 4px 20px var(--color-shadow);
+                transition: box-shadow var(--transition-speed), background-color var(--transition-speed);
+            }
+            h1 {
+                text-align: center;
+                color: var(--color-accent);
+                margin-bottom: 25px;
+                font-weight: 600;
+            }
+            h2 {
+                color: var(--color-text-primary);
+                font-size: 1.3em;
+                margin-bottom: 15px;
+                border-bottom: 2px solid var(--color-border);
+                padding-bottom: 8px;
+            }
+            .nf-input-group, .controls {
+                border: 1px solid var(--color-border);
+                padding: 20px;
+                margin-bottom: 20px;
+                border-radius: var(--border-radius);
+                transition: border-color var(--transition-speed);
+            }
+            .input-inline {
+                display: flex;
+                gap: 15px;
+            }
+            .input-inline > div {
+                flex: 1;
+            }
+            /* 3. ESTILOS DE INPUTS E SELECTS */
+            .controls label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 500;
+                color: var(--color-text-primary);
+            }
+            .controls select,
+            .controls input[type="date"],
+            .controls input[type="number"],
+            .nf-item input {
+                width: 100%; 
+                padding: 12px;
+                margin-bottom: 10px;
+                border: 1px solid var(--color-border);
+                border-radius: 8px;
+                box-sizing: border-box;
+                background-color: var(--color-bg-secondary);
+                color: var(--color-text-primary);
+                transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+            }
+            .controls select:focus,
+            .controls input:focus,
+            .nf-item input:focus {
+                border-color: var(--color-accent);
+                outline: none;
+                /* Efeito de foco suave com a cor de destaque */
+                box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent); 
+            }
+            /* 4. ESTILOS DE LISTA DE NF */
+            .nf-header {
+                display: flex;
+                gap: 170px;
+                margin-bottom: 10px;
+                font-weight: 600;
+                padding-right: 70px; 
+                font-size: 0.9em;
+                color: var(--color-text-primary);
+            }
+            .nf-item {
+                display: flex;
+                gap: 15px;
+                align-items: center;
+                margin-bottom: 15px;
+                padding-bottom: 15px;
+                border-bottom: 1px dashed var(--color-border);
+            }
+           .nf-item:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+            /* 5. ESTILOS DE BOTÕES MODERNOS */
+        button {
+            font-weight: 600;
             padding: 12px 20px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Botão Principal: Calcular */
+        button#calculateBtn {
+            background-color: var(--color-accent);
+            color: white;
             width: 100%;
             margin-top: 20px;
             font-size: 1.1em;
-            transition: background-color 0.3s;
+            /* Sombra forte para destaque */
+            box-shadow: 0 4px 10px color-mix(in srgb, var(--color-accent) 40%, transparent);
         }
         button#calculateBtn:hover {
-            background-color: #0056b3;
+            background-color: var(--color-accent-hover);
+            transform: translateY(-2px); /* Efeito de lift */
+            box-shadow: 0 6px 15px color-mix(in srgb, var(--color-accent) 60%, transparent);
         }
+
+        /* Botão Adicionar NF */
+        #addNfBtn {
+            background-color: var(--color-success);
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+        #addNfBtn:hover {
+            background-color: var(--color-success-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Botão Remover NF (dentro da lista) */
+        .nf-item button {
+            background-color: var(--color-error);
+            color: white;
+            width: 90px; 
+            flex-shrink: 0;
+            padding: 8px 5px; 
+            font-size: 0.90em;
+        }
+        .nf-item button:hover {
+            background-color: var(--color-error-hover);
+            transform: scale(1.05); /* Efeito de zoom leve */
+        }
+        
+        /* Botão Limpar Tudo */
+        #clearBtn {
+            background-color: var(--color-utility);
+            color: white;
+            width: 100%;
+            margin-top: 0; 
+            margin-bottom: 20px;
+        }
+        #clearBtn:hover {
+            background-color: var(--color-utility-hover);
+            transform: translateY(-1px);
+        }
+        
+        /* Botão Copiar Texto (no resultado) */
+        .results button {
+            background-color: var(--color-accent);
+            color: white;
+            padding: 10px 15px;
+            margin-top: 10px;
+            width: auto;
+        }
+
+        /* 6. ESTILOS DE RESULTADOS */
         .results {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e9ecef;
-            border-radius: 6px;
-        }
-        .results p {
-            font-size: 1.1em;
-            margin: 5px 0;
+            margin-top: 30px;
+            padding: 20px;
+            /* Fundo sutilmente colorido/destacado com base na cor principal */
+            background-color: color-mix(in srgb, var(--color-bg-secondary) 80%, var(--color-accent) 10%); 
+            border: 1px solid var(--color-accent);
+            border-radius: var(--border-radius);
         }
         .results h3 {
-            color: #0056b3;
-            border-bottom: 1px solid #ccc;
+            color: var(--color-accent);
+            border-bottom: 1px solid var(--color-border);
             padding-bottom: 5px;
             margin-top: 0;
+            font-size: 1.2em;
+        }
+        .results p {
+            font-size: 1em;
+            margin: 8px 0;
+        }
+        .results p strong {
+            font-weight: 600;
+            color: var(--color-accent);
+            display: inline-block;
+            min-width: 250px;
         }
         #paymentScheduleText {
             white-space: pre-wrap;
-            background-color: #fff;
-            padding: 10px;
-            border: 1px dashed #007bff;
-            border-radius: 4px;
+            background-color: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+            padding: 15px;
+            border: 1px dashed var(--color-accent);
+            border-radius: 8px;
             margin-top: 10px;
             font-family: Consolas, monospace;
             font-size: 0.9em;
+            box-shadow: inset 0 1px 3px var(--color-shadow);
+            overflow-x: auto;
         }
-        .input-inline {
-            display: flex;
-            gap: 10px;
-        }
-        .input-inline > div {
-            flex: 1;
-        }
-        #clearBtn {
-            background-color: #6c757d;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 15px;
-            transition: background-color 0.3s;
-        }
-        #clearBtn:hover {
-            background-color: #5a6268;
-        }
-    </style>
-</head>
+        </style>
+        </head>
 <body>
 
     <div class="container">
@@ -218,7 +306,6 @@
                 </div>
             </div>
             
-            <!-- WRAPPER do número de parcelas para esconder totalmente quando for modo 'valorParcela' -->
             <div id="divNumInstallments">
                 <label for="numInstallments">Número de Parcelas</label>
                 <input type="number" id="numInstallments" min="1" value="4">
@@ -227,7 +314,6 @@
             <label for="firstPaymentDate">Data do Primeiro Pagamento</label>
             <input type="date" id="firstPaymentDate">
 
-            <!-- NOVO: modo de cálculo por valor da parcela (colocado aqui para manter ordem visual) -->
             <div class="input-inline" style="margin-top:10px;">
                 <div>
                     <label for="calcMode">Modo de Cálculo</label>
@@ -333,18 +419,20 @@
         // Função para mostrar/esconder o input de parcelas e os resultados de juros simples
         window.toggleInstallmentsInput = () => {
             const type = document.getElementById('installmentType').value;
+            const numInputDiv = document.getElementById('divNumInstallments');
             const numInput = document.getElementById('numInstallments');
-            const label = document.querySelector('label[for="numInstallments"]');
             const simpleResults = document.getElementById('simpleInterestResults');
+            const calcMode = document.getElementById('calcMode').value;
 
             if (type === 'cash') {
-                numInput.style.display = 'none';
-                label.style.display = 'none';
+                numInputDiv.style.display = 'none';
                 numInput.value = 1; 
                 simpleResults.style.display = 'block'; // Mostra juros simples
             } else {
-                numInput.style.display = 'block';
-                label.style.display = 'block';
+                if (calcMode === 'parcelas') {
+                    numInputDiv.style.display = 'block';
+                }
+                
                 if (numInput.value === '1' || numInput.value === '') {
                     numInput.value = '4'; 
                 }
@@ -355,6 +443,7 @@
         // --- NOVA: alternar modo de cálculo (por parcelas ou por valor da parcela) ---
         window.toggleCalcMode = () => {
             const mode = document.getElementById('calcMode').value;
+            const type = document.getElementById('installmentType').value;
             const divNum = document.getElementById('divNumInstallments');
             const valorDiv = document.getElementById('divValorParcela');
 
@@ -363,9 +452,14 @@
                 divNum.style.display = 'none';
                 valorDiv.style.display = 'block';
             } else {
-                divNum.style.display = 'block';
+                // Se for modo 'parcelas', só exibe se não for 'cash'
+                if (type !== 'cash') {
+                    divNum.style.display = 'block';
+                }
                 valorDiv.style.display = 'none';
             }
+            // Chama toggleInstallmentsInput para garantir que o bloco de Juros Simples (se for cash) está correto
+            toggleInstallmentsInput(); 
         };
         // --- FIM toggleCalcMode ---
 
@@ -427,7 +521,7 @@
         };
         // FIM DA FUNÇÃO clearAll
 
-        // --- Função Principal de Cálculo ---
+        // --- Função Principal de Cálculo (CORRIGIDA) ---
 
         document.getElementById('calculateBtn').addEventListener('click', () => {
             const nfItems = document.querySelectorAll('.nf-item');
@@ -468,8 +562,15 @@
                 return;
             }
 
-            if (type !== 'cash' && (isNaN(numInstallments) || numInstallments <= 0) && calcMode !== 'valorParcela') {
+            // Validação de número de parcelas só é necessária se não estiver no modo valorParcela
+            if (type !== 'cash' && calcMode !== 'valorParcela' && (isNaN(numInstallments) || numInstallments <= 0)) {
                 alert('O número de parcelas deve ser um valor positivo.');
+                return;
+            }
+            
+            // Validação do valor da parcela (só se estiver no modo valorParcela)
+            if (calcMode === 'valorParcela' && (isNaN(desiredInstallmentValue) || desiredInstallmentValue <= 0)) {
+                alert('O valor da parcela desejado deve ser um valor positivo.');
                 return;
             }
 
@@ -479,17 +580,21 @@
             const medianDueDate = calculateMedianDueDate(nfDetails, totalOriginal);
             if (!medianDueDate) return; 
 
-            // 4. JUROS SIMPLES: APLICAR SOMENTE PARA "cash" (à vista)
+            // 4. JUROS SIMPLES: APLICAR A CORREÇÃO DE ATRASO (DMV -> 1º PGTO)
+            // ESTE PASSO FOI CORRIGIDO PARA SER EXECUTADO SEMPRE
             let daysOfDelay = 0;
             let simpleInterestValue = 0;
-            let totalFinanced = totalOriginal; // Padrão: Valor Financiado é o Original
+            let totalFinanced = totalOriginal; // Valor Presente (VP) padrão
 
-            if (type === 'cash') {
-                daysOfDelay = diffInDays(firstPaymentDate, medianDueDate);
-                if (daysOfDelay < 0) daysOfDelay = 0;
-                simpleInterestValue = totalOriginal * dailyRate * daysOfDelay;
-                totalFinanced = totalOriginal + simpleInterestValue;
-            }
+            // Calcular o atraso e aplicar juros simples, se houver atraso.
+            // O juro simples atualiza o valor presente para a data do 1º pagamento.
+            daysOfDelay = diffInDays(firstPaymentDate, medianDueDate);
+            if (daysOfDelay < 0) daysOfDelay = 0; // Se o 1º Pgto for antes da DMV, o atraso é 0 (sem desconto)
+
+            simpleInterestValue = totalOriginal * dailyRate * daysOfDelay;
+            totalFinanced = totalOriginal + simpleInterestValue;
+            
+            // A partir daqui, o totalFinanced é o Valor Presente (VP) na data do 1º Pagamento.
 
             // 5. JUROS COMPOSTOS / PARCELAMENTO
             let installmentValue = 0;
@@ -501,11 +606,12 @@
                 // Modo À Vista: O valor da parcela é o total financiado (Total Original + J. Simples)
                 installmentValue = totalFinanced;
                 ratePerPeriod = dailyRate; // Apenas para exibição
-                totalCompoundInterest = 0; // Não há juros compostos
+                totalCompoundInterest = simpleInterestValue; // O "juro composto" é o juro simples de atraso
                 numInstallments = 1;
                 totalWithCompoundInterest = totalFinanced;
             } else {
                 // Parcelamento (com juros compostos)
+                // O cálculo de juros compostos é feito a partir do totalFinanced (VP atualizado)
 
                 const interval = type === 'weekly' ? 7 : 15;
                 
@@ -513,10 +619,9 @@
                 ratePerPeriod = Math.pow((1 + monthlyRate), (interval / 30)) - 1;
 
                 if (calcMode === 'valorParcela' && desiredInstallmentValue > 0) {
-                    // Aqui, NO MODO "valorParcela", usamos APENAS juros compostos (não aplicamos juros simples)
-                    // totalFinanced já está sem juros simples (já que type !== 'cash')
+                    // CÁLCULO POR VALOR DA PARCELA
                     const MAX_PARCELAS = 240;
-                    let best = { n: 1, pmt: totalFinanced }; // inicialização
+                    let best = { n: 1, pmt: totalFinanced }; 
                     let bestDiff = Math.abs(Math.round(totalFinanced * 100) / 100 - desiredInstallmentValue);
 
                     for (let n = 1; n <= MAX_PARCELAS; n++) {
@@ -525,21 +630,19 @@
                             pmt = totalFinanced / n;
                         } else {
                             const i_n = Math.pow((1 + ratePerPeriod), n);
+                            // Fórmula PMT
                             pmt = totalFinanced * (ratePerPeriod * i_n) / (i_n - 1);
                         }
 
-                        // considerar o valor que será mostrado ao usuário (arredondado a centavos)
                         const pmtRounded = Math.round(pmt * 100) / 100;
                         const diff = Math.abs(pmtRounded - desiredInstallmentValue);
 
-                        // preferir menor diff; em empate, preferir maior n (mais parcelas) — ajustável
                         if (diff < bestDiff || (diff === bestDiff && n > best.n)) {
                             bestDiff = diff;
                             best = { n, pmt };
                         }
                     }
 
-                    // Ajuste final: usar pmt arredondado a centavos (isso garante valor visível mais próximo)
                     numInstallments = best.n;
                     installmentValue = Math.round(best.pmt * 100) / 100;
                     totalWithCompoundInterest = Math.round(installmentValue * numInstallments * 100) / 100;
@@ -548,11 +651,11 @@
                 } else {
                     // Modo original: calcula pelo número de parcelas informado
                     if (ratePerPeriod <= 0) {
-                         installmentValue = totalFinanced / numInstallments;
+                        installmentValue = totalFinanced / numInstallments;
                     } else {
-                         const i_n = Math.pow((1 + ratePerPeriod), numInstallments);
-                         // Fórmula PMT
-                         installmentValue = totalFinanced * (ratePerPeriod * i_n) / (i_n - 1);
+                        const i_n = Math.pow((1 + ratePerPeriod), numInstallments);
+                        // Fórmula PMT
+                        installmentValue = totalFinanced * (ratePerPeriod * i_n) / (i_n - 1);
                     }
 
                     totalWithCompoundInterest = installmentValue * numInstallments;
@@ -580,7 +683,7 @@
             document.getElementById('totalWithCompoundInterest').textContent = formatCurrency(totalWithCompoundInterest);
 
             // mostrar número de parcelas calculado se modo valorParcela
-            if (document.getElementById('calcMode').value === 'valorParcela') {
+            if (document.getElementById('calcMode').value === 'valorParcela' && type !== 'cash') {
                 document.getElementById('calculatedNumDisplay').style.display = 'block';
                 document.getElementById('calculatedNum').textContent = numInstallments;
             } else {
@@ -638,25 +741,33 @@
                 text += `NF: ${nf.num} - Vencimento: ${vencimentoBRL}: ${formatCurrency(nf.value)}\n`;
             });
             text += `-------------------------------------------------\n`;
-            //text += `Valor Total Original: ${formatCurrency(totalOriginal)}\n`;
             text += `\n`;
             
             const formattedRate = ratePercent.toFixed(2).replace('.', ','); 
             
             // Resumo da Negociação
             if (type === 'cash') {
+                text += `VALOR ORIGINAL: ${formatCurrency(totalOriginal)}\n`;
+                if (simpleInterestValue > 0) {
+                    //text += `JUROS DE ATRASO (DMV até 1º Pgto - ${daysOfDelay} dias): ${formatCurrency(simpleInterestValue)}\n`;
+                }
+                text += `VALOR TOTAL ATUALIZADO: ${formatCurrency(totalFinanced)}\n`;
                 text += `\n`;
-                text += `CRONOGRAMA DE PAGAMENTOS:\n`;
+                //text += `CRONOGRAMA DE PAGAMENTOS:\n`;
                 text += `Pagamento Único - Vencimento: ${formatDateBRL(schedule[0].date)} - Valor: ${formatCurrency(installmentValue)}\n`;
             } else {
                 const totalPaid = installmentValue * numInstallments;
                 
-                text += `RESUMO DO PARCELAMENTO (${numInstallments}x):\n`;
-                text += `Valor Original: ${formatCurrency(totalFinanced)} \n`;
-                //if (simpleInterestValue > 0) text += `Juros Simples (atualização até 1º pgto): ${formatCurrency(simpleInterestValue)}\n`;
-                text += `Valor Atualizado: ${formatCurrency(totalPaid)}\n`;
+                //text += `RESUMO DO PARCELAMENTO (${numInstallments}x):\n`;
+                text += `VALOR ORIGINAL: ${formatCurrency(totalOriginal)} \n`;
+                if (simpleInterestValue > 0) {
+                    //text += `Juros ${formatCurrency(simpleInterestValue)}\n`;
+                }
+                //text += `VALOR TOTAL FINANCIADO (Principal): ${formatCurrency(totalFinanced)}\n`;
+                //text += `Juros do Parcelamento (${formattedRate}%/mês): ${formatCurrency(totalCompoundInterest)}\n`;
+                text += `VALOR TOTAL ATUALIZADO: ${formatCurrency(totalPaid)}\n`;
                 text += `\n`;
-                text += `CRONOGRAMA DE PAGAMENTOS:\n`;
+                text += `CRONOGRAMA DE PAGAMENTOS (${numInstallments} parcelas de ${formatCurrency(installmentValue)}):\n`;
                 
                 // Cronograma
                 schedule.forEach(p => {
@@ -705,5 +816,3 @@
              toggleCalcMode(); // garante estado correto do modo cálculo
         });
     </script>
-</body>
-</html>
